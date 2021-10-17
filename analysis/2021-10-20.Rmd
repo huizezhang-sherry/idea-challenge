@@ -1,0 +1,48 @@
+---
+title: '2021-10-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(cubble)
+```
+
+# Existing wind measures
+
+- BOM has wind data but need to contact them for the data:
+  - http://www.bom.gov.au/climate/how/newproducts/IDChw.shtml
+- CSIRO has near surface wind speed but it is interpolated data rather than observational 
+  - https://data.csiro.au/collections/collection/CIcsiro:Wind_Speed/DItrue
+  - Confirm we are interested in observational data, not processed one.
+- Global Historical Climatology Network (Daily) doesn't have wind data for australian stations
+- Integrated Surface Database (ISD) from NOAA has global hourly and synoptic surface observations. 
+  - https://www.ncei.noaa.gov/products/land-based-station/integrated-surface-database
+  - In Victoria, there are 84 stations and I have compiled the 2019 - 2020 data for those stations.
+- Could also look NASA power data - their website is under maintenance this wekeend
+
+
+# Integrated Surface Database (ISD) from NOAA 
+
+*Metadata about this wind variable is in meta/isd-format-document.pdf*
+
+- **wind direction**: angle measures in a clockwise direction, between true north and the direction from which the wind is blowing. MIN: 001 MAX: 360 UNITS: Angular Degrees
+- **wind direction quality**: In the data only 1 and 9 present, which represent 1 = Passed all quality control check and 9 = Passed gross limits check if element is present
+- **wind type**: type presented: N = Normal, V = Variable, C = Calm, and 9 = Missing. The missingness is ~5% for ~7 stations.
+- **wind speed**: similar missing pattern as above. The rate of horizontal travel of air past a fixed point. MIN: 0000 MAX: 0900 UNITS: meters per second SCALING FACTOR: 10. Convert to kilometer per hour by VALUE / 10 * 3.6
+- **wind speed quality**: In the data only 1 and 9 present, which represent 1 = Passed all quality control check and 9 = Passed gross limits check if element is present
+
+```{r echo = FALSE}
+vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria")
+plot_map(vic_map) +
+  geom_point(data = weatherdata::wind %>% select(usaf:elev_m), aes(x = lon, y = lat))
+```
+
+```{r echo = FALSE}
+weatherdata::wind %>% 
+  stretch() %>% 
+  select(-contains("quality"), -contains("code"))
+```
+
