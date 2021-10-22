@@ -1,0 +1,67 @@
+---
+title: '2021-10-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(sf)
+library(tidyverse)
+```
+
+```{r eval = FALSE}
+vic <- st_read(file.choose())
+vic_landuse <- vic %>% st_transform(4326)
+#save(vic_landuse, file = "data/vic_landuse.rda")
+
+# All the polygons are valid 
+#load("data/vic_landuse.rda")
+
+class123 <- vic_landuse %>% 
+  as_tibble() %>% 
+  select(LGA, ALUMV8, HECTARES, geometry) %>% 
+  mutate(class = str_sub(ALUMV8, 1, 1)) %>% 
+  filter(class %in% 1:3) 
+
+class123_simplified <- class123 %>% 
+  filter(HECTARES > 1000) %>% 
+  st_as_sf() %>% 
+  rmapshaper::ms_simplify(keep = 0.005)
+  
+# this chunk may run a while
+vic_landuse_simplified <- class123_simplified %>% 
+  st_buffer(1000) %>% 
+  group_by(ALUMV8, class) %>% 
+  summarise()
+#save(vic_landuse_simplified, file = "data/vic_landuse_simplified.rda")
+```
+
+```{r}
+load(here::here("data/vic_landuse_simplified.rda"))
+dt <- vic_landuse_simplified %>% 
+  rmapshaper::ms_simplify(keep = 0.01)
+
+vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria") 
+dt %>% 
+  ggplot() + 
+  geom_sf(data = vic_map, fill = "transparent") + 
+  geom_sf(aes(fill = class)) + 
+  theme_bw() + 
+  scale_fill_brewer(palette = "Dark2")
+```
+
+
+```{r eval = FALSE}
+# low_bf <- st_read(file.choose())
+# low_bf_simp <- low_bf %>% 
+#   filter(RATING == "low_fire_hazard") %>% 
+#   rmapshaper::ms_simplify(keep = 0.01)
+# 
+# vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria") 
+# low_bf_simp %>% 
+#   ggplot() + 
+#   geom_sf(data = vic_map, fill = "transparent") + 
+#   geom_sf(fill = "red") + 
+#   theme_bw() 
+```
+
