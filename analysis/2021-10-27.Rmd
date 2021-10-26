@@ -1,0 +1,62 @@
+---
+title: '2021-10-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, 
+                      out.width = "80%",
+                      fig.align = "center")
+library(sf)
+library(tidyverse)
+```
+
+# A list of compiled data 
+
+## Wind data 
+- `wind_meta` and `wind_data`: metadata for wind stations; direction and speed for each wind stations, 
+  - **script**: `scripts/01-wind-stations.r`
+  - **source**: Integrated Surface Database (ISD); obtained using the `rnoaa` package
+  - **attribute**: hourly data from 2910-01-01 to 2020-12-31
+  - **notes**: reconciled with a list of stations from Carolyn, all the ISD stations are in Carolyn's list. 14 out of 94 stations from Carolyn don't appear in this data and this is because they are not included in the `rnoaa::isd_stations()`
+  - **vis**: `figures/wind_stations.png`
+
+```{r}
+knitr::include_graphics(here::here("figures/wind_stations.png"))
+```
+
+## Land use 
+- `vic_landuse`: land usage in Victoria
+  - **script**: `scripts/02-land-use.R`
+  - **source**: https://discover.data.vic.gov.au/dataset/victorian-land-use-information-system-2016-2017
+  - **raw data**: `data-raw/CATCHMENTS/`
+  - **notes**: The land use classification is as per [The Australian Land Use and Management Classification Version 8](https://www.awe.gov.au/sites/default/files/abares/aclump/documents/ALUMCv8_Handbook4ednPart2_UpdateOctober2016.pdf). A selection of the V8 classes are used: 
+    - **113**: national park
+    - **220**: commercial production from native forests
+    - **310**: a combination of 311: plantation forests: hardwood plantation forestry and 312: plantation forests
+    - **320**: grazing modified pastures
+    - **330**: cropping, take 330 as representative of 331, 334, and 338
+  - **vis**: `figures/landuse.png`
+
+```{r}
+knitr::include_graphics(here::here("figures/landuse.png"))
+```
+
+
+## Elevation
+- `vic_elev`: elevation contour in Victoria
+  - **script**: `scripts/03-elevation.R`
+  - **source**: https://discover.data.vic.gov.au/dataset/contour-1-25000-vicmap-elevation
+  - **raw data**: `data-raw/VMELEV/`
+  - **attributes**: contour line every 100m from 100m to 1900m (variable ALTITUDE). 
+  - **notes**: huge amount of simplification is needed since the contour linestring is detailed to the fourth decimal places for long/lat. The visualisation plots the contour line at 200, 400, 600 and 800m and can be extended to other altitude if needed.
+  - **vis**: `figures/contour2468.png`
+
+```{r out.width = "100%"}
+knitr::include_graphics(here::here("figures/contour2468.png"))
+```
+
+
+## Others
+
+  - Also tried bush fire prone area and low risk area data from `data.vic.gov`. The results are not ideal: include most of Victoria or only area close to Melbourne. 
