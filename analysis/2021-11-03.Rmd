@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width=10)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width=10, echo = FALSE)
 library(tidyverse)
 library(sf)
 load(here::here("data/wind_meta.rda"))
@@ -20,7 +20,7 @@ bbox <- sf::st_bbox(c(xmin = 147.5, ymin = -38.2,
 
 # Wind rose map
 
-For one station: 
+## For one station: 
 
   - Counts the number of wind from each direction from Oct-2019 to Mar-2020
   - Use a polar coordinate to turn it into a wind rose
@@ -54,7 +54,7 @@ p1 <- dt %>%
 p2 <- dt %>%
   ggplot() +
   geom_bar(aes(x = dir2)) +
-  coord_polar(start = -pi / 18) +
+  coord_polar() +
   scale_x_continuous(breaks = seq(0, 360, 20)) +
   theme_bw() +
   theme(
@@ -72,9 +72,9 @@ library(patchwork)
 p1 | p2
 ```
 
-Plot the wind rose for all the stations: 
+## All the stations: 
 
-- Slightly rearrange the coordinate to be multiple of 0.4 to avoid overlapping 
+- Slightly rearrange the coordinate to be multiple of 0.4 to avoid wind rose inset overlapping 
 
 ```{r out.width="100%", echo = FALSE, fig.retina=3}
 knitr::include_graphics(here::here("figures/wind-rose.png"))

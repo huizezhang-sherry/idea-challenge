@@ -23,7 +23,7 @@ single_windrose <- function(usaf_id){
   dt %>%
     ggplot(aes(x = dir2)) +
     geom_bar() +
-    coord_polar(start = -pi/18) +
+    coord_polar() +
     scale_x_continuous(breaks = seq(0, 360, 20)) +
     theme_bw() +
     theme(
@@ -65,8 +65,8 @@ ggplot() +
         panel.border = element_blank(),
         plot.margin=grid::unit(c(0,0,0,0), "mm"))
 
-# ggsave(filename = here::here("figures/wind-rose.png"),
-#        width = 25, height = 15, unit = "cm", dpi = 320)
+ggsave(filename = here::here("figures/wind-rose.png"),
+       width = 25, height = 15, unit = "cm", dpi = 320)
 
 ###############################################
 # Plot the count of each wind direction by month for the eastern stations
