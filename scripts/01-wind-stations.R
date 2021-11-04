@@ -10,10 +10,16 @@ wind_meta <- weatherdata::wind %>%
   as_tibble() %>%
   select(-ts)
 
-wind_data <- weatherdata::wind %>% stretch() %>% as_tibble()
+wind_data <- weatherdata::wind %>%
+  stretch() %>%
+  filter(between(lubridate::date(time), as.Date("2019-10-01"), as.Date("2020-03-31")),
+         direction <= 360) %>%
+  as_tibble()
+
 save(wind_meta, file = "data/wind_meta.rda")
 save(wind_data, file = "data/wind_data.rda")
 
+vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria")
 plot_map(vic_map) +
   geom_point(data = wind_meta, aes(x = lon, y = lat))
 ggsave(filename = "figures/wind_stations.png")
@@ -26,7 +32,7 @@ wind_stations <- weatherdata::wind %>%
 
 locations <- read_csv(here::here("data-raw/wind-locations-carolyn.csv"))
 
-vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria")
+
 
 combined <- wind_stations %>%
   select(usaf, lat, lon) %>%

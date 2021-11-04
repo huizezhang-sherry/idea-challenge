@@ -33,7 +33,7 @@ load(here::here("data/vic_elev.rda"))
 contour <- vic_elev %>%
   filter(FTYPE_CODE == "contour_index")
 
-find_good <- function(dt = contour, alt, threshold = 400){
+find_good <- function(dt = contour, alt, threshold = 400, keep_ratio = 0.01){
   coords <- dt %>%
     filter(ALTITUDE == alt) %>%
     st_coordinates() %>%
@@ -51,14 +51,15 @@ find_good <- function(dt = contour, alt, threshold = 400){
   dt %>%
     filter(ALTITUDE == alt) %>%
     filter(row_number() %in% good_rows) %>%
-    rmapshaper::ms_simplify(keep = 0.01)
+    rmapshaper::ms_simplify(keep = keep_ratio)
 }
 
 out <- map_dfr(seq(200, 800, 200), ~find_good(alt = .x))
 
 ggplot() +
-  geom_sf(data = vic_map, fill = "grey95") +
+  geom_sf(data = vic_map, fill = "transparent") +
   geom_sf(data = out, aes(color = as.factor(ALTITUDE)), size = 0.2) +
+  geom_point(data = wind_meta, aes(x = lon, y = lat)) +
   scale_color_brewer(palette = "Dark2", name = "altitude") +
   theme_bw()
 
