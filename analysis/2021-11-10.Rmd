@@ -1,0 +1,119 @@
+---
+title: '2021-11-10'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+
+# Eastern Victoria bioregions and dominant vegetation:
+
+  - *Summary: Mainly Dry, Damp, and Wet Forest, Woodland*
+  - **East Gippsland Uplands**: Shrubby & Grassy Dry Forest,, Damp Forest, Wet Forest, Grassy Woodland
+  - **East Gippsland Lowlands**: Lowland Forest with Damp Forest and Shrubby Dry Forest, banksia Woodland, Riparian Scrub
+  - **Monaro Tablelands**: various type of Woodland, Damp Forest
+  - **Highlands - Far east**: Wet Forest, Damp forest at lower elevation
+  - **Victorain Alps**: a few Woodland, Damp & Web Forest
+  - **Northern Inland Slopes**: Shrubby & Grassy Dry forest, Woodland 
+  - *Source: https://www.environment.vic.gov.au/biodiversity/bioregions-and-evc-benchmarks*
+
+
+
+# Fire models
+
+ *While fire models tend to assume a constant wind speed with a fixed direction, the wind roses suggest multiple wind sources in eastern Victoria mountain area.*
+
+  - Dry Eucalypt Forest
+    - Prescribed burning models
+    - Wildfire models
+      - **McArthur Mk 5 Forest Fire Danger Meter (FFDM): McArthur(1967)**
+        - Fire spread is directly determined form the *fire danger index*
+        - McArthur(1967): Drought Factor (determined by precipitation) + Relative Humidity + Air Temperature + Wind Speed (10m) -> Forest Fire Danger Index (FFDI)
+        - Nobel (1980): FFDI + Fuel Load -> Rate of fire speed
+        - Matthews (2009): Reformulate moisture Content (MC) into FFDI (MC model for dry eucalypt litter can be used)
+        - More literature on calculation of Drought Factor
+        - Application: PHOENIX RapidFire, Australis
+        - Recommend? **NO, under-predict the spread rate of a wildfire propagation. Superseded by Cheney et al (2012)**
+      - **Dry Eucalypt Forest Fire Model (Project Vesta): Cheney et al (2012)**
+        - Based on the concept of *Fuel hazard score (FHS)* or *Fuel hazard rating (FHR)*
+        - FHS/ FHR + MC + Wind speed (10m) -> Rate of fire speed
+  - Wet Eucalypt Forest
+    - **Forest Fire Behavior Table for Western Australia - Karri fuel type**
+  - Reference: *A guide to rate of fire spread models for Australian vegetation*
+
+
+# Other papers
+
+  - **Effect of weather forecast errors on fire growth model projections**: https://doi.org/10.1071/WF19199
+    - Experiment on both PHOENIX and Spark
+    - Compare between **observed weather data** and **simulation of deterministic forecast weather**
+      - observed: from BOM, point-based 
+      - forecast: gridded forecast by BOM, 5-km forecast grid based on eight global weather models
+      - experiment generate ignition location 5 to 10 km from the observation station
+    - results:
+      - error is defined as the absolute difference between observed and forecast
+      - "Increased error in wind speed and temperature resulted in an over-prediction of fires, whereas increased error in wind direction resulted in a decreased overlap in the prediction"
+      - "These patterns were consistent between the two fire simulators, although the magnitude varied, with greater changes seen for both metrics in PHOENIX compared with Spark"
+
+```{r}
+library(cubble)
+library(tidyverse)
+library(sf)
+vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria")
+stations <- weatherdata::wind %>% 
+  arrange(-lon) %>% 
+  head(7) %>% 
+  as_tibble() %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+  mutate(circle = st_buffer(geometry, dist = units::set_units(10, "km")))
+  
+
+ggplot() + 
+  geom_sf(data = vic_map, fill = "transparent") + 
+  geom_sf(data = stations, aes(geometry = circle), linetype = "dotted") + 
+  geom_sf(data = stations, aes(geometry = geometry)) + 
+  theme_bw() +
+  coord_sf(xlim = c(147.5, 150), ylim = c(-38.2, -35.8))
+  
+```
+
+  - Wind modelling:
+    - **A Comparison of Three Approaches for Simulating Fine-Scale Surface Winds in Support of Wildland Fire Management. Part II. An Exploratory Study of the Effect of Simulated Winds on Fire Growth Simulations**:  https://doi.org/10.1071/WF12090
+    - Probabilistic model rather than deterministic model: **Modeling Wind Direction Distributions Using a Diagnostic Model in the Context of Probabilistic Fire Spread Prediction**: https://doi.org/10.3389/fmech.2019.00005
+    - Wind Ninja: **High-resolution observations of the near-surface wind fields over an isolated mountain and in a steep river canyon**: https://doi.org/10.5194/acp-15-3785-2015
+
+# Spark
+
+  - wind direction and speed are input as raster layer - prediction from wind model
+
+
+# Considerations on wind station placement
+  
+  - height
+    - WMO standard is  10 m height
+    - Some models uses 2 m wind speed
+    - Wind adjustment factor (WAF) for converting surface wind to "midflame wind speed" for *Rothermel's surface fire spread model*: **Modelling Wind Adjustment Factor and Midflame Wind Speed for Rothermel’s Surface Fire Spread Model**: https://doi.org/10.2737/RMRS-GTR-266
+  - Maintenance
+    - Animal attack?
+
+
+# Others:
+
+  - PhD thesis from Quill: **Statistical Characterisation of Wind Fields over Complex Terrain with Applications in Bushfire Modelling**: http://handle.unsw.edu.au/1959.4/59004
+    -  "Crosby and Chandler [1966] highlighted the importance of accurate wind observations in fire modelling as well as management operations, while Noble et al. [1980] recognised the sensitivity of fire to wind, and the requirement of accurate data for model inputs"
+    - wind speed & direction with complex terrian strcture
+    
+    - N. S. Wagenbrenner, J. M. Forthofer, B. K. Lamb, K. S. Shannon, and B. W. Butler. Downscaling surface wind predictions from numerical weather prediction models in complex terrain with WindNinja. Atmospheric Chemistry and Physics, 16:5229–5241, 2016
+    
+    - Operational Wind Field Models: WindNinja [Forthofer et al., 2014b] is currently the most widely used model across the USA in operational fire management, and is also incorporated within Phoenix Rapidfire in Australia (Tolhurst et al., 2008).
+
+  - project Vesta: https://ebooks-publish-csiro-au.ezproxy.lib.monash.edu.au/content/project-vesta-fire-dry-eucalypt-forest
+
+
+  - A few other papers: 
+    - **Effects of spatial and temporal variation in environmental conditions on simulation of wildfire spread**: https://doi.org/10.1016/j.envsoft.2015.01.015
+    - **Predicting fire behaviour in dry eucalypt forest in southern Australia**: https://doi.org/10.1016/j.foreco.2012.06.012
+    - **Predicting the number of daily human-caused bushfires to assist suppression planning in south-west Western Australia**: https://doi.org/10.1071/WF13090
+
