@@ -20,13 +20,14 @@ bbox <- sf::st_bbox(c(xmin = 147.5, ymin = -38.2,
 
 # Wind rose map
 
-## For one station: 
+We first look at one station, `945959`: 
 
-  - Counts the number of wind from each direction from Oct-2019 to Mar-2020
-  - Use a polar coordinate to turn it into a wind rose
+  - **A**: Plot the counts of wind from each direction from Oct-2019 to Mar-2020
+  - **B**: Use polar coordinate on A
+  - **C**: Remove grid lines and theme, to inset into the map
   - Wind direction aggregate to every 20 degree - 10 degree looks too sparse
   
-```{r}
+```{r, fig.height=4}
 wind <- wind_data %>%
   filter(lubridate::minute(time) == 0) %>%
   group_by(usaf, time) %>%
@@ -41,17 +42,34 @@ p1 <- dt %>%
   ggplot(aes(x = dir2)) +
   geom_bar() +
   scale_x_continuous(breaks = seq(0, 360, 40)) +
-  theme_bw() +
-  theme(
-    legend.position = "none",
-    aspect.ratio = 1,
-    panel.grid = element_blank(),
-    panel.border = element_blank(),
-    plot.margin = grid::unit(c(0, 0, 0, 0), "mm")
-  ) +
-  labs(x = "", y = "")
+  #theme_bw() +
+  # theme(
+  #   legend.position = "none",
+  #   aspect.ratio = 1,
+  #   panel.grid = element_blank(),
+  #   panel.border = element_blank(),
+  #   plot.margin = grid::unit(c(0, 0, 0, 0), "mm")
+  # ) +
+  labs(x = "Wind Direction", y = "Count", title = "A")
 
 p2 <- dt %>%
+  ggplot() +
+  geom_bar(aes(x = dir2)) +
+  coord_polar() +
+  scale_x_continuous(breaks = seq(0, 360, 20)) +
+  #theme_bw() +
+  # theme(
+  #   legend.position = "none",
+  #   aspect.ratio = 1,
+  #   panel.grid = element_blank(),
+  #   axis.text.y = element_blank(),
+  #   axis.ticks.y = element_blank(),
+  #   panel.border = element_blank(),
+  #   plot.margin = grid::unit(c(0, 0, 0, 0), "mm")
+  # ) +
+  labs(x = "", y = "", title = "B")
+
+p3 <- dt %>%
   ggplot() +
   geom_bar(aes(x = dir2)) +
   coord_polar() +
@@ -66,10 +84,10 @@ p2 <- dt %>%
     panel.border = element_blank(),
     plot.margin = grid::unit(c(0, 0, 0, 0), "mm")
   ) +
-  labs(x = "", y = "")
+  labs(x = "", y = "", title = "C")
 
 library(patchwork)
-p1 | p2
+p1 | p2 | p3
 ```
 
 ## All the stations: 
