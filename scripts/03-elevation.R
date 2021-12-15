@@ -54,7 +54,8 @@ find_good <- function(dt = contour, alt, threshold = 400, keep_ratio = 0.01){
     rmapshaper::ms_simplify(keep = keep_ratio)
 }
 
-out <- map_dfr(seq(200, 800, 200), ~find_good(alt = .x))
+elev2468 <- map_dfr(seq(200, 800, 200), ~find_good(alt = .x))
+#save(elev2468, file = "data/elev2468.rda")
 
 ggplot() +
   geom_sf(data = vic_map, fill = "transparent") +
