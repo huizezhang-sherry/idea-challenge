@@ -88,6 +88,8 @@ p3 <- dt %>%
 
 library(patchwork)
 p1 | p2 | p3
+
+ggsave(filename = here::here("figures/windrose-single.png"), width = 15, height = 5)
 ```
 
 ## All the stations: 

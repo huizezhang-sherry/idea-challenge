@@ -21,7 +21,13 @@ save(wind_data, file = "data/wind_data.rda")
 
 vic_map <- ozmaps::abs_ste %>% filter(NAME == "Victoria")
 plot_map(vic_map) +
-  geom_point(data = wind_meta, aes(x = lon, y = lat))
+  geom_point(data = wind_meta, aes(x = lon, y = lat)) +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        panel.border = element_blank(),
+        plot.margin=grid::unit(c(0,0,0,0), "mm")) +
+  labs(x = "Longitude", y = "Latitude")
+
 ggsave(filename = "figures/wind_stations.png")
 #############################
 # Reconcile the ISD stations with the list of station Carolyn provided.

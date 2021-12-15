@@ -25,6 +25,8 @@ single_windrose <- function(usaf_id){
     geom_bar() +
     coord_polar() +
     scale_x_continuous(breaks = seq(0, 360, 20)) +
+    # an attempt to use fixed y scale
+    #scale_y_continuous(limits = c(0, 750)) +
     theme_bw() +
     theme(
       legend.position = "none",
@@ -63,7 +65,8 @@ ggplot() +
   theme_bw() +
   theme(panel.grid = element_blank(),
         panel.border = element_blank(),
-        plot.margin=grid::unit(c(0,0,0,0), "mm"))
+        plot.margin=grid::unit(c(0,0,0,0), "mm")) +
+  labs(x = "Longitude", y = "Latitude")
 
 ggsave(filename = here::here("figures/wind-rose.png"),
        width = 25, height = 15, unit = "cm", dpi = 320)
