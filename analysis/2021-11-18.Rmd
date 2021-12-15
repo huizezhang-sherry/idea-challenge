@@ -1,0 +1,103 @@
+---
+title: '2021-11-18'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ fire occurrence (ignition: human/ natural), fire behavior (main: fuel type, weather, etc), fire effect (impact, suppression, value loss)
+
+McArthur's Fire Danger Rating System (FDRS)
+
+- For forest: 
+  - inputs:
+    - long-term drought (Keetch Byram Drought Index), 
+    - recent rainfall, 
+    - temperature, 
+    - relative humidity and
+    - wind speed (McArthur 1967)
+
+- For grassland (1960, 1966)
+
+
+- sub-models
+  - fine fuel availability model, the "Drought Factor"
+    - The fine fuel availability, "Drought Factor" model uses the Keetch Byram Drought Index (KBDI), a measure of soil (duff) moisture content (Keetch and Byram 1968), the amount of rain in the most recent rainfall event and the time since this event as input variables to this sub-model.
+    - lots of other variables, including wind, affect the drought factor but are not included, so this model will have problem in more complex topology condition. 
+
+
+  - surface fine fuel moisture: 
+    - ambient air temperature and relative humidity
+    - assuming relatively flat ground and moderately covered forest
+    
+  - fire spread model:
+    - surface fine fuel moisture and wind speed in open euclypt forest
+    - 1.5m & 22m wind speed 
+      - different heights and densities of forest
+      - benchmark o fully stocked, low quality euclypt forest in the 12-20m height range. (wind speed is 1/3 of that in the open)
+      - consequence of under/ over-estimate in more open/ denser forest than the benchmark
+    
+  - difficult of suppression model
+    - rate of spread + surface fine fuel moisture
+
+
+Why input accuracy is important 
+
+- Limitations on the accuracy of model predictions of wildland fire behaviour: A state-of-the-knowledge overview: https://pubs.cif-ifc.org/doi/pdf/10.5558/tfc2013-067
+
+
+# 2021-12-01
+
+**Prediction of Fire Spread in Grasslands **
+
+  - heading fire is unstable when wind speed is small (< 5 km/h), inaccurate, respond to gusts and lulls. Often  the  wind  affecting  the  head  fires  was  quite  different from that  recorded at the anemometer depending on passage of gusts and lulls over the site. Obtained "consistent head fire spread only when wind speed > 5km/h"
+
+Requirement on anemometer:
+
+  - BoM instruction: MA8a Instrument Siting Requirements - this is the guideline for Aerodrome meteorological equipment but could also be useful for us.
+  - A site metadata form from BoM that requires details on basics, land use, surface type, soil type, along with photos from various direction. More information in the MA8a report.
+  
+
+Wind change
+
+  - a significant factor for Ash Wednesday, the most dreadful fire before Black Saturday
+  - The sudden change of the wind direction is likely due to the presence of cold front: http://ww2010.atmos.uiuc.edu/(Gh)/guides/mtr/af/frnts/cfrnt/wnd.rxml
+  - Another paper on wind change: Climatology of wind changes and elevated fire dangerover Victoria, Australia
+
+Misc:
+
+  - PHOENIX Rapidfire: Under the Hood. Unpublished Guide
+
+
+Glossary:
+
+  - wind lull: a marked decrease in wind speed
+
+#######################################################
+
+
+notes/ Junks:
+
+Bush fire: fire occurrence (ignition: human/ natural), fire behavior (main: fuel type, weather, etc), fire effect (impact, suppression, value loss)
+
+Operational tools : 	
+    - Phoenix & Spark concern a whole chain of fire management from ... to ...
+	- PHOENIX:  
+		- CSIRO southern grassland fire spread model (Cheney & Sullivan 1997, Cheney et al. 1998), and 
+    	- the McArthur Mk5 forest fire behaviour model (McArthur 1962, 1967, 1973, Noble et al. 1980)."
+    	- mention the good quality of inputs 
+    
+	- Spark:
+		- level set method 
+    	- allow inputs of fire spread model for modelling more scenario
+        - To code with heterogeneity in wind conditions, random draw from pre-defined distribution is used. [sourced from Miller 2015 - is that reliable???] (" ind  was  a  triangulation  of  data  from  the  surrounding  weather  stations  of  Nowra,  Ulladulla,  Jer-vis Bay, and Goulburn. The variation in the wind had standard deviation 1 km/h and 10  degrees  for  speed  and  direction  respectively.")
+
+Fire behaviour - our concern,  
+	-> under fire behaviour: drought factor, fuel moisture, focusing on rate of spread 
+    -> link to the spread algorithm: Huygen’s algorithm (Richards 1995) to ....
+		-> the rate of spread model requires different sub-modelling but share the same set of underlying ingredients regarding fuel load, topology, and weather condition. McArthur MK 5 uses 10m wind speed to first calculate the Forest Fire Danger Index (FFDI) as an ingredient to the rate of fire spread, (Cheney 2012) uses 10m wind speed, along with Fuel Hazard Scores Fuel Hazard Ratings for rate of fire spread. 
+        -> In practice, 
+        	-> Phoenix 
+            -> Sparks
